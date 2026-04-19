@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #eef4fb;
+  --foreground: #18324a;
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-strong: #ffffff;
+  --border: rgba(21, 48, 80, 0.12);
+  --shadow: 0 18px 45px rgba(21, 48, 80, 0.08);
+}
+
+html {
+  overflow: hidden;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--foreground);
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.22), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.18), transparent 24%),
+    linear-gradient(180deg, #f7fbff 0%, var(--background) 100%);
+  font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(14, 165, 233, 0.2);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Scrollbar com respeito aos cantos arredondados */
+  .rounded-scrollbar {
+    scrollbar-gutter: stable;
+  }
+
+  .rounded-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .rounded-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 28px;
+  }
+
+  .rounded-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.3);
+    border-radius: 4px;
+  }
+
+  .rounded-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.5);
+  }
+}
