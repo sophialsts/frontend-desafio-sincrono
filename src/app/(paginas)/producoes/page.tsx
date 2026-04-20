@@ -1,15 +1,11 @@
 "use client";
 
-import { FormEvent, useState, useEffect } from 'react';
-import Producoes from "@/core/producoes/Producoes";
-import { criarProducao, atualizarProducao, removerProducao } from "@/services/producoes";
-import getProducoes from "@/services/producoes";
+import { FormEvent, useState } from 'react';
+import { criarProducao } from "@/services/producoes";
 import AdicionarBotao from "@/components/AdicionarBotao";
 
 export default function ProducoesPage() {
-    const [lista, setLista] = useState<Producoes[]>([]);
     const [aberto, setAberto] = useState(false);
-    const [editandoId, setEditandoId] = useState<string | null>(null);
     const [nomeartigo, setNomeartigo] = useState('');
     const [issn, setIssn] = useState('');
     const [anoartigo, setAnoartigo] = useState<string>('');
@@ -19,28 +15,8 @@ export default function ProducoesPage() {
     const [erroPesquisadorId, setErroPesquisadorId] = useState('');
     const [carregando, setCarregando] = useState(false);
 
-    // Carregar dados iniciais
-    useEffect(() => {
-        const carregarProducoes = async () => {
-            setCarregando(true);
-            setErro('');
-
-            try {
-                const producoes = await getProducoes();
-                setLista(producoes);
-            } catch (e) {
-                setErro((e as Error).message || 'Falha ao carregar produções.');
-            } finally {
-                setCarregando(false);
-            }
-        };
-
-        carregarProducoes();
-    }, []);
-
     const handleFecharFormulario = () => {
         setAberto(false);
-        setEditandoId(null);
         setNomeartigo('');
         setIssn('');
         setAnoartigo('');
@@ -58,33 +34,6 @@ export default function ProducoesPage() {
         }
     };
 
-    const handleEditar = (producao: Producoes) => {
-        setEditandoId(producao.producoes_id || null);
-        setNomeartigo(producao.nomeartigo);
-        setIssn(producao.issn);
-        setAnoartigo(producao.anoartigo.toString());
-        setPesquisadoresId(producao.pesquisadores_id);
-        setAberto(true);
-        setErro('');
-        setErroIssn('');
-        setErroPesquisadorId('');
-    };
-
-    const handleRemover = async (id: string) => {
-        if (!confirm('Tem certeza que deseja remover esta produção?')) return;
-        
-        setErro('');
-        setCarregando(true);
-        try {
-            await removerProducao(id);
-            setLista((atual) => atual.filter((p) => p.producoes_id !== id));
-        } catch (e) {
-            setErro((e as Error).message || 'Falha ao remover produção.');
-        } finally {
-            setCarregando(false);
-        }
-    };
-
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setErro('');
@@ -99,31 +48,21 @@ export default function ProducoesPage() {
         setCarregando(true);
 
         try {
-            if (editandoId) {
-                const producaoAtualizada = await atualizarProducao(editandoId, {
-                    nomeartigo,
-                    issn,
-                    anoartigo: Number(anoartigo),
-                    pesquisadores_id: pesquisadoresId,
-                });
-                setLista((atual) =>
-                    atual.map((p) => (p.producoes_id === editandoId ? producaoAtualizada : p))
-                );
-            } else {
-                const novaProducao = await criarProducao({
-                    nomeartigo,
-                    issn,
-                    anoartigo: Number(anoartigo),
-                    pesquisadores_id: pesquisadoresId,
-                });
-                setLista((atual) => [novaProducao, ...atual]);
-            }
+            await criarProducao({
+                nomeartigo,
+                issn,
+                anoartigo: Number(anoartigo),
+                pesquisadores_id: pesquisadoresId,
+            });
+
+            // ESCREVA AQUI a sincronização da UI após o POST.
+            // Ex.: chamar uma função de recarga ou atualizar o estado local da listagem.
+
             setNomeartigo('');
             setIssn('');
             setAnoartigo('');
             setPesquisadoresId('');
             setAberto(false);
-            setEditandoId(null);
         } catch (e) {
             const mensagemErro = (e as Error).message || 'Falha ao salvar produção.';
 
@@ -151,16 +90,8 @@ export default function ProducoesPage() {
                 <AdicionarBotao label="Adicionar produção" aberto={aberto} onClick={handleAdicionar} />
             </div>
 
-            <div className="rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-50 to-cyan-50 p-5 shadow-sm">
-                <p className="text-sm font-medium uppercase tracking-[0.2em] text-sky-700">Resumo</p>
-                <div className="mt-3 flex items-end justify-between gap-4">
-                    <div>
-                        <h3 className="text-lg font-semibold text-slate-900">Total de produções</h3>
-                        <p className="text-sm text-slate-600">Quantidade atual registrada na plataforma.</p>
-                    </div>
-                    <span className="text-4xl font-semibold leading-none text-sky-700">{lista.length}</span>
-                </div>
-            </div>
+            {/* ESCREVA AQUI o card de total de producoes.
+                Ex.: usar `lista.length` para exibir a quantidade retornada pela busca. */}
 
             {erro ? (
                 <div className="flex items-start justify-between gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -183,9 +114,7 @@ export default function ProducoesPage() {
                 <form onSubmit={handleSubmit} className="space-y-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div className="flex items-start justify-between gap-3">
                         <div>
-                            <h3 className="text-lg font-semibold text-slate-900">
-                                {editandoId ? 'Editar produção' : 'Adicionar produção'}
-                            </h3>
+                            <h3 className="text-lg font-semibold text-slate-900">Adicionar produção</h3>
                             <p className="text-sm text-slate-500">
                                 Preencha os campos e use o fechar para retornar ao estado anterior.
                             </p>
@@ -271,55 +200,23 @@ export default function ProducoesPage() {
                         disabled={carregando}
                         className="inline-flex items-center justify-center rounded-full bg-sky-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-400"
                     >
-                        {carregando ? (editandoId ? 'Atualizando...' : 'Adicionando...') : (editandoId ? 'Atualizar produção' : 'Adicionar produção')}
+                        {carregando ? 'Adicionando...' : 'Adicionar produção'}
                     </button>
                 </form>
             )}
 
-            <div className="grid gap-4">
-                {!carregando && !erro && lista.length === 0 ? (
-                    <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-600">
-                        Nenhuma produção cadastrada até o momento.
-                    </div>
-                ) : null}
-
-                {lista.map((producao) => (
-                    <div key={producao.producoes_id} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-                        <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
-                                <h3 className="text-xl font-semibold text-slate-900">{producao.nomeartigo}</h3>
-                                <p className="mt-1 text-sm text-slate-500">Produção ID: {producao.producoes_id}</p>
-                            </div>
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => handleEditar(producao)}
-                                    className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 transition hover:bg-amber-200"
-                                >
-                                    Editar
-                                </button>
-                                <button
-                                    onClick={() => handleRemover(producao.producoes_id || '')}
-                                    disabled={carregando}
-                                    className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-200 disabled:opacity-50"
-                                >
-                                    Remover
-                                </button>
-                            </div>
-                        </div>
-                        <div className="mt-4 grid gap-3 sm:grid-cols-2 text-sm text-slate-600">
-                            <div>
-                                <span className="font-medium text-slate-800">Pesquisador ID:</span> {producao.pesquisadores_id}
-                            </div>
-                            <div>
-                                <span className="font-medium text-slate-800">ISSN:</span> {producao.issn}
-                            </div>
-                            <div>
-                                <span className="font-medium text-slate-800">Ano:</span> {producao.anoartigo}
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
+            <section className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-600">
+                <h3 className="text-base font-semibold text-slate-800">Listagem temporariamente removida do frontend</h3>
+                <p className="mt-2">
+                    Esta tela ficou preparada para focar no cadastro enquanto a experiência de listagem é reconstruída.
+                </p>
+                {/* ESCREVA AQUI a busca inicial com useEffect.
+                    Ex.: chamar listarProducoes ao montar a tela e salvar retorno em estado. */}
+                {/* ESCREVA AQUI a renderização da lista e do estado vazio.
+                    Ex.: usar condicionais para loading, erro, vazio e cards dos itens. */}
+                {/* ESCREVA AQUI os fluxos de editar e remover.
+                    Ex.: abrir formulário com dados do item e remover via ação por card. */}
+            </section>
         </div>
     );
 }

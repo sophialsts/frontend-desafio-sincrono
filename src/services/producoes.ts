@@ -103,17 +103,9 @@ export interface CriarProducaoDTO {
 
 export type AtualizarProducaoDTO = CriarProducaoDTO;
 
-const getProducoes = async () => {
-  const resposta = await executarRequisicao(url, {
-    method: "GET",
-    mode: "cors",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  }, "listar");
-
-  return resposta.json();
-};
+// ESCREVA AQUI A FUNCAO DE REQUISICAO listarProducoes.
+// Dica: reutilize `executarRequisicao(url, init, "listar")` para preservar
+// o tratamento de erros ja existente quando o GET /producoes voltar.
 
 export const criarProducao = async (dados: CriarProducaoDTO) => {
   const resposta = await executarRequisicao(url, {
@@ -149,13 +141,9 @@ export const removerProducao = async (id: string) => {
       "Content-Type": "application/json",
     },
   }, "remover");
-
-  // DELETE pode retornar 204 No Content
   if (resposta.status === 204) {
     return {};
   }
 
   return resposta.json();
 };
-
-export default getProducoes;
