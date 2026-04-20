@@ -2,7 +2,7 @@
 
 import { FormEvent, useState, useEffect } from 'react';
 import Pesquisador from "@/core/pesquisadores/Pesquisador";
-import { criarPesquisador, atualizarPesquisador, removerPesquisador } from "@/services/pesquisadores";
+import { criarPesquisador, atualizarPesquisador } from "@/services/pesquisadores";
 import getPesquisadores from "@/services/pesquisadores";
 import AdicionarBotao from "@/components/AdicionarBotao";
 
@@ -56,21 +56,6 @@ export default function Pesquisadores() {
         setLattesId(pesquisador.lattes_id);
         setAberto(true);
         setErro('');
-    };
-
-    const handleRemover = async (lattes_id: string) => {
-        if (!confirm('Tem certeza que deseja remover este pesquisador?')) return;
-        
-        setErro('');
-        setCarregando(true);
-        try {
-            await removerPesquisador(lattes_id);
-            setLista((atual) => atual.filter((p) => p.lattes_id !== lattes_id));
-        } catch (e) {
-            setErro((e as Error).message || 'Falha ao remover pesquisador.');
-        } finally {
-            setCarregando(false);
-        }
     };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -206,12 +191,14 @@ export default function Pesquisadores() {
                                     Editar
                                 </button>
                                 <button
-                                    onClick={() => handleRemover(pesquisador.lattes_id)}
-                                    disabled={carregando}
-                                    className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-200 disabled:opacity-50"
+                                    type="button"
+                                    disabled
+                                    className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 opacity-50"
                                 >
                                     Remover
                                 </button>
+                                {/* ESCREVA AQUI o clique de remocao no card.
+                                    Ex.: passar `pesquisador.lattes_id` para uma funcao handleRemover. */}
                             </div>
                         </div>
                         <div className="mt-4 grid gap-3 sm:grid-cols-2 text-sm text-slate-600">
@@ -226,6 +213,8 @@ export default function Pesquisadores() {
                                 {pesquisador.abstract}
                             </p>
                         ) : null}
+                        {/* ESCREVA AQUI a logica de remocao de pesquisador.
+                            Ex.: confirmar a acao, chamar o service e filtrar o item removido da lista. */}
                     </div>
                 ))}
             </div>

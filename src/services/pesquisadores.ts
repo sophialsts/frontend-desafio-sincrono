@@ -137,21 +137,7 @@ export const atualizarPesquisador = async (lattes_id: string, dados: AtualizarPe
   return resposta.json();
 };
 
-export const removerPesquisador = async (lattes_id: string) => {
-  const resposta = await executarRequisicao(`${url}/${lattes_id}`, {
-    method: "DELETE",
-    mode: "cors",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  }, "remover");
-
-  // DELETE pode retornar 204 No Content
-  if (resposta.status === 204) {
-    return {};
-  }
-
-  return resposta.json();
-};
+// ESCREVA AQUI a funcao de requisicao removerPesquisador.
+// Ex.: usar executarRequisicao(`${url}/${lattes_id}`, init, "remover") e tratar 204.
 
 export default getPesquisadores;
