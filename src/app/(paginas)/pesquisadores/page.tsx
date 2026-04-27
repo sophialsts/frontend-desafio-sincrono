@@ -13,6 +13,8 @@ export default function Pesquisadores() {
     const [nome, setNome] = useState('');
     const [lattesId, setLattesId] = useState('');
     const [erro, setErro] = useState('');
+    const [erroNome, setErroNome] = useState('');
+    const [erroLattesId, setErroLattesId] = useState('');
     const [carregando, setCarregando] = useState(false);
 
     // Carregar dados iniciais
@@ -40,6 +42,8 @@ export default function Pesquisadores() {
         setNome('');
         setLattesId('');
         setErro('');
+        setErroNome('');
+        setErroLattesId('');
     };
 
     const handleAdicionar = async () => {
@@ -61,20 +65,38 @@ export default function Pesquisadores() {
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setErro('');
+        setErroNome('');
+        setErroLattesId('');
+
+        const nomeNormalizado = nome.trim();
+        const lattesNormalizado = lattesId.trim();
+
+        if (!nomeNormalizado) {
+            setErroNome('Informe o nome do pesquisador.');
+            return;
+        }
+
+        if (lattesNormalizado.length !== 16) {
+            setErroLattesId('O ID Lattes deve conter exatamente 16 dígitos.');
+            return;
+        }
+
         setCarregando(true);
 
         try {
             if (editandoId) {
-                const pesquisadorAtualizado = await atualizarPesquisador(editandoId, { nome, lattes_id: lattesId });
+                const pesquisadorAtualizado = await atualizarPesquisador(editandoId, { nome: nomeNormalizado, lattes_id: lattesNormalizado });
                 setLista((atual) =>
                     atual.map((p) => (p.lattes_id === editandoId ? pesquisadorAtualizado : p))
                 );
             } else {
-                const novoPesquisador = await criarPesquisador({ nome, lattes_id: lattesId });
+                const novoPesquisador = await criarPesquisador({ nome: nomeNormalizado, lattes_id: lattesNormalizado });
                 setLista((atual) => [novoPesquisador, ...atual]);
             }
             setNome('');
             setLattesId('');
+            setErroNome('');
+            setErroLattesId('');
             setAberto(false);
             setEditandoId(null);
         } catch (e) {
@@ -144,19 +166,45 @@ export default function Pesquisadores() {
                             Nome
                             <input
                                 value={nome}
-                                onChange={(event) => setNome(event.target.value)}
-                                className="mt-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-200"
+                                onChange={(event) => {
+                                    setNome(event.target.value);
+                                    if (erroNome) {
+                                        setErroNome('');
+                                    }
+                                }}
+                                className={`mt-2 rounded-xl bg-slate-50 px-3 py-2 text-slate-900 outline-none focus:ring-2 ${
+                                    erroNome
+                                        ? 'border border-red-300 focus:border-red-400 focus:ring-red-200'
+                                        : 'border border-slate-300 focus:border-sky-400 focus:ring-sky-200'
+                                }`}
                                 placeholder="Nome do pesquisador"
                             />
+                            {erroNome ? (
+                                <span className="mt-2 text-sm text-red-600">{erroNome}</span>
+                            ) : null}
                         </label>
                         <label className="flex flex-col text-sm text-slate-700">
                             ID Lattes
                             <input
                                 value={lattesId}
-                                onChange={(event) => setLattesId(event.target.value)}
-                                className="mt-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-200"
-                                placeholder="0000-0000"
+                                onChange={(event) => {
+                                    setLattesId(event.target.value.replace(/\D/g, '').slice(0, 16));
+                                    if (erroLattesId) {
+                                        setErroLattesId('');
+                                    }
+                                }}
+                                className={`mt-2 rounded-xl bg-slate-50 px-3 py-2 text-slate-900 outline-none focus:ring-2 ${
+                                    erroLattesId
+                                        ? 'border border-red-300 focus:border-red-400 focus:ring-red-200'
+                                        : 'border border-slate-300 focus:border-sky-400 focus:ring-sky-200'
+                                }`}
+                                placeholder="0000000000000000"
+                                inputMode="numeric"
+                                maxLength={16}
                             />
+                            {erroLattesId ? (
+                                <span className="mt-2 text-sm text-red-600">{erroLattesId}</span>
+                            ) : null}
                         </label>
                     </div>
                     <button
