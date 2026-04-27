@@ -19,21 +19,27 @@ export default function Pesquisadores() {
 
     // Carregar dados iniciais
     useEffect(() => {
+        let ativo = true;
+
         const carregarPesquisadores = async () => {
             setCarregando(true);
             setErro('');
 
             try {
                 const pesquisadores = await getPesquisadores();
-                setLista(pesquisadores);
+                if (ativo) setLista(pesquisadores);
             } catch (e) {
-                setErro((e as Error).message || 'Falha ao carregar pesquisadores.');
+                if (ativo) setErro((e as Error).message || 'Falha ao carregar pesquisadores.');
             } finally {
-                setCarregando(false);
+                if (ativo) setCarregando(false);
             }
         };
 
         carregarPesquisadores();
+
+        return () => {
+            ativo = false;
+        };
     }, []);
 
     const handleFecharFormulario = () => {
@@ -47,11 +53,14 @@ export default function Pesquisadores() {
     };
 
     const handleAdicionar = async () => {
-        setAberto((valor) => !valor);
         setErro('');
-        if (aberto) {
-            handleFecharFormulario();
-        }
+        setAberto((valor) => {
+            const novo = !valor;
+            if (!novo) {
+                handleFecharFormulario();
+            }
+            return novo;
+        });
     };
 
     const handleEditar = (pesquisador: Pesquisador) => {
@@ -100,7 +109,12 @@ export default function Pesquisadores() {
             setAberto(false);
             setEditandoId(null);
         } catch (e) {
-            setErro((e as Error).message || 'Falha ao salvar pesquisador.');
+            const mensagem = (e as Error).message || 'Falha ao salvar pesquisador.';
+            if (mensagem.toLowerCase().includes('duplicate') || mensagem.toLowerCase().includes('já existe')) {
+                setErroLattesId('Já existe um pesquisador com esse ID Lattes.');
+            } else {
+                setErro(mensagem);
+            }
         } finally {
             setCarregando(false);
         }
@@ -245,7 +259,7 @@ export default function Pesquisadores() {
                                 >
                                     Remover
                                 </button>
-                                {/* IMPLEMENTAÇÃO SUGERIDA DO BOTÃO REMOVER:
+                                {/* ESCREVA AQUI A IMPLEMENTAÇÃO DO BOTÃO REMOVER:
                                     1. Remova o atributo `disabled` quando a funcionalidade estiver pronta.
                                     2. Adicione um `onClick` neste botão chamando algo como
                                        `() => handleRemover(pesquisador.lattes_id)`.
@@ -266,7 +280,7 @@ export default function Pesquisadores() {
                                 {pesquisador.abstract}
                             </p>
                         ) : null}
-                        {/* IMPLEMENTAÇÃO SUGERIDA DA REMOÇÃO:
+                        {/*ESCREVA AQUI A IMPLEMENTAÇÃO DA REMOÇÃO:
                             1. Crie uma função assíncrona, por exemplo `handleRemover(lattesId: string)`.
                             2. Dentro dela, primeiro peça confirmação ao usuário com `window.confirm(...)`
                                para evitar exclusões acidentais.
