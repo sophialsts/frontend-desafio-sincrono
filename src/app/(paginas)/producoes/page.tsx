@@ -105,7 +105,7 @@ export default function ProducoesPage() {
                 <AdicionarBotao label="Adicionar produção" aberto={aberto} onClick={handleAdicionar} />
             </div>
 
-            {/* ESCREVA AQUI o card de total de producoes.
+            {/* ESCREVA AQUI o card com a quantidade total de producoes.
                 Ex.: usar `lista.length` para exibir a quantidade retornada pela busca. */}
 
             {erro ? (
