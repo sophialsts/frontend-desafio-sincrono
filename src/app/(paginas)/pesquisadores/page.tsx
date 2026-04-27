@@ -197,8 +197,13 @@ export default function Pesquisadores() {
                                 >
                                     Remover
                                 </button>
-                                {/* ESCREVA AQUI o clique de remocao no card.
-                                    Ex.: passar `pesquisador.lattes_id` para uma funcao handleRemover. */}
+                                {/* IMPLEMENTAÇÃO SUGERIDA DO BOTÃO REMOVER:
+                                    1. Remova o atributo `disabled` quando a funcionalidade estiver pronta.
+                                    2. Adicione um `onClick` neste botão chamando algo como
+                                       `() => handleRemover(pesquisador.lattes_id)`.
+                                    3. Use o `lattes_id` porque ele será o identificador enviado para o endpoint DELETE.
+                                    4. Se quiser melhorar a UX, também dá para desabilitar o botão apenas
+                                       durante a exclusão para evitar cliques repetidos. */}
                             </div>
                         </div>
                         <div className="mt-4 grid gap-3 sm:grid-cols-2 text-sm text-slate-600">
@@ -213,8 +218,20 @@ export default function Pesquisadores() {
                                 {pesquisador.abstract}
                             </p>
                         ) : null}
-                        {/* ESCREVA AQUI a logica de remocao de pesquisador.
-                            Ex.: confirmar a acao, chamar o service e filtrar o item removido da lista. */}
+                        {/* IMPLEMENTAÇÃO SUGERIDA DA REMOÇÃO:
+                            1. Crie uma função assíncrona, por exemplo `handleRemover(lattesId: string)`.
+                            2. Dentro dela, primeiro peça confirmação ao usuário com `window.confirm(...)`
+                               para evitar exclusões acidentais.
+                            3. Se o usuário cancelar, encerre a função com `return`.
+                            4. Se confirmar, limpe mensagens antigas com `setErro('')` e, se necessário,
+                               controle um estado de carregamento para a remoção.
+                            5. Chame o service responsável pelo DELETE enviando o `lattesId`.
+                            6. Se a API responder com sucesso, atualize a lista com:
+                               `setLista((atual) => atual.filter((item) => item.lattes_id !== lattesId))`
+                               para remover o card da tela sem precisar recarregar a página.
+                            7. Se houver erro, capture no `catch` e mostre uma mensagem amigável em `setErro(...)`.
+                            8. Se a regra de negócio exigir, trate também o caso em que o pesquisador
+                               possui produções vinculadas e não pode ser removido. */}
                     </div>
                 ))}
             </div>

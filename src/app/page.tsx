@@ -17,7 +17,7 @@ export default function Home() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
 
         <div className="rounded-2xl bg-white p-4 shadow-sm border">
-          <h3 className="font-semibold text-blue-600">
+          <h3 className="font-semibold text-green-600">
             Listagem de Produções (Fácil)
           </h3>
           <ul className="text-sm text-slate-700 list-disc ml-4 mt-2">
@@ -28,7 +28,7 @@ export default function Home() {
         </div>
 
         <div className="rounded-2xl bg-white p-4 shadow-sm border">
-          <h3 className="font-semibold text-blue-600">
+          <h3 className="font-semibold text-green-600">
              Quantidade Total (Fácil)
           </h3>
           <ul className="text-sm text-slate-700 list-disc ml-4 mt-2">
@@ -39,7 +39,7 @@ export default function Home() {
         </div>
 
         <div className="rounded-2xl bg-white p-4 shadow-sm border">
-          <h3 className="font-semibold text-green-600">
+          <h3 className="font-semibold text-amber-600">
              Adição de Pesquisador (Médio)
           </h3>
           <ul className="text-sm text-slate-700 list-disc ml-4 mt-2">
@@ -55,6 +55,7 @@ export default function Home() {
              Edição de Produção (Difícil)
           </h3>
           <ul className="text-sm text-slate-700 list-disc ml-4 mt-2">
+            <li>Tarefa de frontend e backend</li>
             <li>Botão &quot;Editar&quot; em cada card</li>
             <li>Formulário pré-preenchido</li>
             <li>PUT /producoes/{`{id}`}</li>
@@ -63,14 +64,16 @@ export default function Home() {
         </div>
 
         <div className="rounded-2xl bg-white p-4 shadow-sm border">
-          <h3 className="font-semibold text-green-600">
+          <h3 className="font-semibold text-amber-600">
              Remoção de Pesquisador (Médio)
           </h3>
           <ul className="text-sm text-slate-700 list-disc ml-4 mt-2">
-            <li>Botão &quot;Remover&quot;</li>
-            <li>Confirmação antes de excluir</li>
+            <li>Tarefa de frontend e backend</li>
+            <li>Botão &quot;Remover&quot; em cada card</li>
+            <li>Confirmar exclusão antes de enviar</li>
             <li>DELETE /pesquisadores/{`{lattes_id}`}</li>
-            <li>Validar vínculos com produções</li>
+            <li>Atualizar a lista após sucesso</li>
+            <li>Tratar erro se houver vínculo com produções</li>
           </ul>
         </div>
 
@@ -79,6 +82,7 @@ export default function Home() {
              Tratamento de Erros (Difícil)
           </h3>
           <ul className="text-sm text-slate-700 list-disc ml-4 mt-2">
+            <li>Tarefa de frontend e backend</li>
             <li>Aplicar apenas na edição de produção</li>
             <li>Tratar 400, 404 e 500</li>
             <li>Exibir feedback ao usuário</li>

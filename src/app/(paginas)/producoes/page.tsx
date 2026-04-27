@@ -12,7 +12,6 @@ export default function ProducoesPage() {
     const [pesquisadoresId, setPesquisadoresId] = useState('');
     const [erro, setErro] = useState('');
     const [erroIssn, setErroIssn] = useState('');
-    const [erroPesquisadorId, setErroPesquisadorId] = useState('');
     const [carregando, setCarregando] = useState(false);
 
     const handleFecharFormulario = () => {
@@ -23,7 +22,6 @@ export default function ProducoesPage() {
         setPesquisadoresId('');
         setErro('');
         setErroIssn('');
-        setErroPesquisadorId('');
     };
 
     const handleAdicionar = async () => {
@@ -38,7 +36,6 @@ export default function ProducoesPage() {
         event.preventDefault();
         setErro('');
         setErroIssn('');
-        setErroPesquisadorId('');
 
         if (issn.length !== 8) {
             setErroIssn('O ISSN deve conter exatamente 8 dígitos numéricos.');
@@ -64,17 +61,35 @@ export default function ProducoesPage() {
             setPesquisadoresId('');
             setAberto(false);
         } catch (e) {
-            const mensagemErro = (e as Error).message || 'Falha ao salvar produção.';
+            setErro((e as Error).message || 'Falha ao salvar produção.');
 
-            if (mensagemErro.toLowerCase().includes('pesquisador não encontrado')) {
-                setErroPesquisadorId('Nenhum pesquisador foi encontrado com esse ID.');
-            }
+            /*
+              TRATAMENTO DE ERROS DO BACKEND PARA EDIÇÃO DE PRODUÇÃO:
 
-            if (mensagemErro.toLowerCase().includes('issn')) {
-                setErroIssn('O ISSN deve conter exatamente 8 dígitos numéricos.');
-            }
+              Quando o fluxo de edição (PUT /producoes/{id}) for implementado, estes cenários
+              precisam ser tratados de forma explícita com base no retorno da API:
 
-            setErro(mensagemErro);
+              1. Erro 400:
+                 Usar para dados inválidos, como ISSN fora do formato esperado, campos obrigatórios
+                 ausentes ou ano inválido. Nesse caso, o ideal é mapear o erro para o campo correto
+                 usando estados específicos, por exemplo `setErroIssn(...)`.
+
+              2. Erro 404:
+                 Usar quando a produção não existir mais ou quando o pesquisador informado não for encontrado.
+                 Aqui vale exibir uma mensagem clara para a pessoa entender que o vínculo ou o registro não existe.
+
+              3. Erro 500:
+                 Usar para falhas internas do servidor. Nesse caso, mostre uma mensagem genérica e amigável,
+                 sem depender de detalhes técnicos da API.
+
+              4. Erro de rede / indisponibilidade:
+                 Tratar quando a requisição nem chega ao backend, como timeout ou servidor offline.
+                 O ideal é informar que não foi possível concluir a edição e sugerir nova tentativa.
+
+              5. Regra importante de UX:
+                 Em qualquer erro durante a edição, mantenha o formulário aberto e preserve os dados digitados
+                 para a pessoa corrigir o problema sem preencher tudo novamente.
+            */
         } finally {
             setCarregando(false);
         }
@@ -101,7 +116,6 @@ export default function ProducoesPage() {
                         aria-label="Fechar aviso"
                         onClick={() => {
                             setErro('');
-                            setErroPesquisadorId('');
                         }}
                         className="inline-flex h-7 w-7 items-center justify-center rounded-full text-lg font-semibold leading-none text-red-600 transition hover:bg-red-100"
                     >
@@ -177,22 +191,15 @@ export default function ProducoesPage() {
                             ID do pesquisador
                             <input
                                 value={pesquisadoresId}
-                                onChange={(event) => {
-                                    setPesquisadoresId(event.target.value);
-                                    if (erroPesquisadorId) {
-                                        setErroPesquisadorId('');
-                                    }
-                                }}
-                                className={`mt-2 rounded-xl bg-slate-50 px-3 py-2 text-slate-900 outline-none focus:ring-2 ${
-                                    erroPesquisadorId
-                                        ? 'border border-red-300 focus:border-red-400 focus:ring-red-200'
-                                        : 'border border-slate-300 focus:border-sky-400 focus:ring-sky-200'
-                                }`}
+                                onChange={(event) => setPesquisadoresId(event.target.value)}
+                                className="mt-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-200"
                                 placeholder="UUID do pesquisador"
                             />
-                            {erroPesquisadorId ? (
-                                <span className="mt-2 text-sm text-red-600">{erroPesquisadorId}</span>
-                            ) : null}
+                            {/* TRATAMENTO FUTURO PARA EDIÇÃO:
+                                Quando a edição de produção for implementada, este campo pode receber
+                                um erro vindo do backend se o pesquisador informado não existir.
+                                A sugestão é criar um estado específico, como `erroPesquisadorId`,
+                                destacar o input em vermelho e mostrar uma mensagem abaixo do campo. */}
                         </label>
                     </div>
                     <button
@@ -216,6 +223,19 @@ export default function ProducoesPage() {
                     Ex.: usar condicionais para loading, erro, vazio e cards dos itens. */}
                 {/* ESCREVA AQUI os fluxos de editar e remover.
                     Ex.: abrir formulário com dados do item e remover via ação por card. */}
+                {/* TRATAMENTO DE ERROS NECESSÁRIO NA EDIÇÃO DE PRODUÇÃO:
+                    Ao implementar o fluxo de editar, trate pelo menos estes retornos do backend:
+                    - 400: dados inválidos, como ISSN incorreto ou campos obrigatórios ausentes.
+                    - 404: produção não encontrada ou pesquisador informado inexistente.
+                    - 500: erro interno no servidor.
+                    - erro de rede: falha de comunicação com a API.
+
+                    Como implementar:
+                    - Envolver o PUT em `try/catch`.
+                    - Ler a resposta da API e separar erros gerais de erros por campo.
+                    - Exibir mensagens próximas ao campo quando o erro for específico.
+                    - Exibir um aviso geral quando o problema for global.
+                    - Manter o formulário aberto se a edição falhar. */}
             </section>
         </div>
     );
